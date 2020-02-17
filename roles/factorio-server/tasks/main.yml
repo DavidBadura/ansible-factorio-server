@@ -1,0 +1,53 @@
+---
+- name: install supervisor
+  apt:
+    name: supervisor
+
+- name: stop factorio
+  supervisorctl:
+    name: factorio
+    state: stopped
+
+- name: download factorio headless server
+  get_url:
+    url: "https://www.factorio.com/get-download/{{ factorio_version }}/headless/linux64"
+    dest: /tmp/factorio.tar.xz
+
+- name: unarchive factorio headless server
+  unarchive:
+    src: /tmp/factorio.tar.xz
+    dest: /opt
+    remote_src: yes
+
+- name: add factorio user
+  user:
+    name: factorio
+
+- name: copy savegame
+  copy:
+    src: savegame.zip
+    dest: /opt/factorio/savegame.zip
+    mode: '0755'
+
+- name: change rights
+  file:
+    path: /opt/factorio
+    owner: factorio
+    group: factorio
+    recurse: true
+
+- name: copy supervisor config
+  copy:
+    src: supervisor.conf
+    dest: /etc/supervisor/conf.d/factorio.conf
+
+- name: copy start script
+  copy:
+    src: start.sh
+    dest: /opt/factorio/start.sh
+    mode: '0755'
+
+- supervisorctl:
+    name: factorio
+    state: started
+

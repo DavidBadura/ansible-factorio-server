@@ -1,0 +1,7 @@
+---
+- hosts: factorio
+  roles:
+    - role: common
+      become: true
+    - role: factorio-server
+      become: true
